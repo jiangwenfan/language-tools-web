@@ -1,0 +1,98 @@
+version: "2.4"
+services:
+
+  # celery:
+  #   container_name: redk-language-toolsApplication-celery
+  #   build: ./language-toolsApplication
+  #   image: redk/language-tools:v2.0
+  #   restart: unless-stopped
+  #   env_file: .env
+  #   volumes:
+  #     - ./language-toolsApplication:/language-toolsApplication # 仅测试环境，k8s上不需要这个
+  #     - log:/language-toolsApplication/media # 仅测试，k8s上不需要这个
+  #   # command: celery -A language-toolsApplication worker --beat --scheduler django_celery_beat.schedulers:Datalanguage-toolsScheduler --loglevel=info
+  #   command: celery -A language-toolsApplication worker  --loglevel=info
+  #   depends_on:
+  #     language-tools:
+  #       condition: service_started
+  #   networks:
+  #     - language-tools
+
+  # celery-ui:
+  #   container_name: redk-language-toolsApplication-celery-ui
+  #   build: ./language-toolsApplication
+  #   image: redk/language-tools:v2.0
+  #   restart: unless-stopped
+  #   ports:
+  #     - "5556:5566"
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - ./language-toolsApplication:/language-toolsApplication # 仅测试环境，k8s上不需要这个
+  #   command: celery -A language-toolsApplication --broker=redis://redk-redis:6379/2 flower --address=0.0.0.0 --port=5566
+  #   depends_on:
+  #     celery:
+  #       condition: service_started
+  #   networks:
+  #     - language-tools
+
+  language-tools:
+    container_name: language-tools
+    build: ./language_tools
+    image: evans/language-tools:v1.0
+    restart: unless-stopped
+    env_file: .env
+    command: [ "/bin/sh", "start.sh" ]
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./language_tools:/language_tools # 仅测试环境
+    networks:
+      - language-tools-network
+    depends_on:
+      - mysql
+
+  # redis:
+  #   image: redis:7.0-alpine
+  #   container_name: language-tools-redis
+  #   ports:
+  #     - 7379:6379
+  #   # volumes:
+  #   #   - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+  #   #   - language-tools-redis:/data
+  #   command: redis-server /usr/local/etc/redis/redis.conf
+  #   networks:
+  #     - language-tools
+  #   healthcheck:
+  #     test: 'redis-cli ping|grep PONG'
+  #     interval: 2s
+  #     timeout: 5s
+  #     retries: 60
+
+  mysql:
+    container_name: language-tools-mysql
+    # build: ./mysql/
+    # image: evans/language-tools:8.0
+    image: mysql:8.0
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - language-tools-mysql:/var/lib/mysql
+    ports:
+      - 3306:3306
+    healthcheck:
+      test: '/usr/bin/mysql --user=root --password=admin123K# --execute "SHOW DATABASES;"'
+      interval: 4s
+      timeout: 10s
+      retries: 60
+    networks:
+      - language-tools-network
+
+volumes:
+  language-tools-mysql:
+  language-tools-redis:
+
+
+networks:
+  language-tools-network:
+    name: language-tools-network
