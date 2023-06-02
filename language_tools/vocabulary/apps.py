@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class WordsConfig(AppConfig):
+class VocabularyConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'words'
+    name = 'vocabulary'

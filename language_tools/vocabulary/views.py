@@ -1,11 +1,13 @@
 import json
 import logging
 
+from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponseBadRequest
 from django.http.request import QueryDict
 from django.shortcuts import HttpResponse, render
 from django.views.decorators.http import require_http_methods
+from vocabulary.utils.translate import YoudaoProviderHandle
 
 
 @require_http_methods(["GET"])
@@ -45,3 +47,31 @@ def words2mp3(request: WSGIRequest):
     # TODO 将mp3拼接成audio
     return HttpResponse("ok")
 
+
+@require_http_methods(["POST"])
+def pull_words(request: WSGIRequest):
+    request_body_args: QueryDict = request.POST
+    words = request_body_args.get("words",None)
+    logging.info(f"receiver words: {words}")
+    match settings.TRANSLATE_PROVIDER:
+        case "youdao":
+            # TODO celery 异步处理
+            YoudaoProviderHandle().get_resource(input_words=json.loads(words))
+        case _:
+            ...
+    return HttpResponse("ok")
+
+@require_http_methods(["POST"])
+def get_words_from_pdf(request: WSGIRequest):
+
+    return HttpResponse("ok")
+
+
+@require_http_methods(["POST"])
+def get_words_from_html(request: WSGIRequest):
+    return HttpResponse("ok")
+
+
+@require_http_methods(["POST"])
+def get_words_from_subtitle(request: WSGIRequest):
+    return HttpResponse("ok")

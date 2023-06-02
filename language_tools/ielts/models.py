@@ -22,6 +22,8 @@ class ChapterModel(models.Model):
     updated_time = models.DateField(auto_now=True,help_text="update time",verbose_name="update time")
     class Meta:
         db_table = "ielts_chapter"
+    def __str__(self) -> str:
+        return self.name
 
 
 class PaperModel(models.Model):
@@ -33,22 +35,39 @@ class PaperModel(models.Model):
     class Meta:
         db_table = "ielts_paper"
     
-
+    def __str__(self) -> str:
+        return self.name
 class WordModel(models.Model):
     name = models.CharField(max_length=200,help_text="word en",verbose_name="word en", )
     zh = models.CharField(null=True,blank=True,max_length=200,help_text="word zh",verbose_name="word zh")
     symbol = models.CharField(null=True,blank=True,max_length=200,help_text="word pronounce symbol",verbose_name="word pronounce symbol")
+    grammar_info = models.JSONField(verbose_name="grammar info",help_text="grammar info")
     created_time = models.DateTimeField(auto_now_add=True,help_text="create time",verbose_name="create time")
     updated_time = models.DateField(auto_now=True,help_text="update time",verbose_name="update time")
     
     class Meta:
-        db_table = "word"
+        db_table = "ielts_word"
         
+    def __str__(self) -> str:
+        return self.name
 class Mp3FileModel(models.Model):
     en_file_uuid = models.UUIDField(null=True,blank=True,editable=False,help_text="word en mp3 short url",verbose_name="")
     zh_file_uuid = models.UUIDField(null=True,blank=True,editable=False,help_text="word zh mp3 short url",verbose_name="")
     mp3_files = models.ForeignKey(WordModel,on_delete=models.CASCADE)
+    class Meta:
+        db_table = "ielts_word_mp3"
 
+    def __str__(self) -> str:
+        return self.name
+class TagModel(models.Model):
+    name = models.CharField(unique=True,max_length=200,verbose_name="标签",help_text="标签")
+    words = models.ManyToManyField(WordModel)
+
+    class Meta:
+        db_table = "ielts_word_tag"
+
+    def __str__(self) -> str:
+        return self.name
 # class ResultModel(Base):
 #     rtype = models.CharField(max_length=10)  # 1.听音拼写 2.听音辨义
 #     bid = models.ForeignKey(BookModel, on_delete=models.CASCADE)

@@ -1,4 +1,4 @@
-from words.models import TranslateProviderModel, TranslateWordDataModel
+from words.models import ProviderModel, WordInfoModel
 
 # move data
 
@@ -7,8 +7,8 @@ from words.models import TranslateProviderModel, TranslateWordDataModel
 # check data
 
 # init translate provier
-if not TranslateProviderModel.objects.filter(name_en="youdao").exists():
-    TranslateProviderModel.objects.create(**{
+if not ProviderModel.objects.filter(name_en="youdao").exists():
+    ProviderModel.objects.create(**{
         "name_en":"youdao",
         "name":"xx"
     })
